@@ -7,16 +7,23 @@ let
 
   name = "terraform-provider-cockpit-cms";
 
-  plugin = "marcodaniels.com/cockpit-cms/0.1/darwin_amd64";
+  plugin = "marcodaniels.com/tf/cockpit-cms/0.1/darwin_arm64";
 
   build = pkgs.writeScriptBin "build" ''
     ${pkgs.go_1_18}/bin/go build -o ${name}
   '';
 
-  install = pkgs.writeScriptBin "install" ''
-    ${build}
+  buildPlugin = pkgs.writeScriptBin "buildPlugin" ''
+    ${build}/bin/build
     mkdir -p ~/.terraform.d/plugins/${plugin}
     mv ${name} ~/.terraform.d/plugins/${plugin}
+  '';
+
+  runTerraform = pkgs.writeScriptBin "runTerraform" ''
+    cd examples
+    rm .terraform.lock.hcl
+    ${pkgs.terraform_1}/bin/terraform init
+    TF_LOG=debug ${pkgs.terraform_1}/bin/terraform apply --auto-approve
   '';
 
 in pkgs.mkShell {
@@ -26,7 +33,8 @@ in pkgs.mkShell {
     pkgs.go_1_18
 
     build
-    install
+    buildPlugin
+    runTerraform
   ];
 
   shellHook = ''
