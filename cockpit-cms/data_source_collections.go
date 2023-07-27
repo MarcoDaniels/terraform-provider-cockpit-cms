@@ -3,10 +3,8 @@ package cockpit_cms
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -232,24 +230,17 @@ func flattenCollections(nestedCollections *map[string]Collection) []interface{} 
 }
 
 func dataSourceCollectionsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := m.(*Client)
 
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/collections/listCollections/extended", "http://localhost:8080/api"), nil)
+	result, err := client.allCollections()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	r, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer r.Body.Close()
 
 	collections := make(map[string]Collection, 0)
-	err = json.NewDecoder(r.Body).Decode(&collections)
-	if err != nil {
+	if err := json.Unmarshal(result, &collections); err != nil {
 		return diag.FromErr(err)
 	}
 

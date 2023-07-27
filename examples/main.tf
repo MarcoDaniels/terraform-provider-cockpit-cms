@@ -7,7 +7,9 @@ terraform {
   }
 }
 
-provider "cockpit-cms" {}
+provider "cockpit-cms" {
+  base_url = "http://localhost:8080/api"
+}
 
 data "cockpit-cms_collections" "all" {}
 
