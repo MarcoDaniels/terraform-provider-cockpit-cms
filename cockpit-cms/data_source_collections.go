@@ -3,6 +3,7 @@ package cockpit_cms
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strconv"
@@ -236,16 +237,28 @@ func dataSourceCollectionsRead(ctx context.Context, d *schema.ResourceData, m in
 
 	result, err := client.allCollections()
 	if err != nil {
-		return diag.FromErr(err)
+		return append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Failed to retrieve all collections.",
+			Detail:   fmt.Sprintf("Unable to retrieve collections with error: %s", err.Error()),
+		})
 	}
 
 	collections := make(map[string]Collection, 0)
 	if err := json.Unmarshal(result, &collections); err != nil {
-		return diag.FromErr(err)
+		return append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Failed to unmarshal collections result.",
+			Detail:   fmt.Sprintf("Unable to unmarshal with error: %s", err.Error()),
+		})
 	}
 
 	if err := d.Set("collections", flattenCollections(&collections)); err != nil {
-		return diag.FromErr(err)
+		return append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Failed to set flatten collections.",
+			Detail:   fmt.Sprintf("Unable to set flatten collections with error: %s", err.Error()),
+		})
 	}
 
 	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))

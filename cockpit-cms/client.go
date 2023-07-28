@@ -14,6 +14,10 @@ type Client struct {
 }
 
 func cockpitClient(baseUrl, token string) (*Client, error) {
+	if (baseUrl == "") || (token == "") {
+		return nil, fmt.Errorf("empty baseUrl or token")
+	}
+
 	client := Client{
 		HTTPClient: &http.Client{Timeout: 10 * time.Second},
 		Token:      token,

@@ -9,12 +9,12 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"base_url": &schema.Schema{
+			"base_url": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("COCKPIT_BASE_URL", nil),
 			},
-			"token": &schema.Schema{
+			"token": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Sensitive:   true,
@@ -33,7 +33,12 @@ func Provider() *schema.Provider {
 
 			client, err := cockpitClient(baseUrl, token)
 			if err != nil {
-				return nil, diag.FromErr(err)
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  "Unable to initiate Cockpit CMS client.",
+					Detail:   "Unable to authenticate with provided 'base_url' and 'token'.",
+				})
+				return nil, diags
 			}
 
 			return client, diags
