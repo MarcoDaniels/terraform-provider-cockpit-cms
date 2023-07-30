@@ -21,7 +21,9 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("COCKPIT_API_TOKEN", nil),
 			},
 		},
-		ResourcesMap: map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{
+			"cockpit-cms_collection": resourceCollection(),
+		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"cockpit-cms_collections": dataSourceCollections(),
 		},

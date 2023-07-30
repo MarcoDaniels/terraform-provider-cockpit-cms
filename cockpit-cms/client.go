@@ -1,6 +1,8 @@
 package cockpit_cms
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -27,13 +29,9 @@ func cockpitClient(baseUrl, token string) (*Client, error) {
 	return &client, nil
 }
 
-func (c *Client) allCollections() ([]byte, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/collections/listCollections/extended", c.BaseURL), nil)
-	if err != nil {
-		return nil, err
-	}
-
+func (c *Client) makeRequest(req *http.Request) ([]byte, error) {
 	req.Header.Set("Cockpit-Token", c.Token)
+	req.Header.Set("Content-Type", "application/json")
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -49,5 +47,69 @@ func (c *Client) allCollections() ([]byte, error) {
 		return nil, fmt.Errorf("status: %d, body: %s", res.StatusCode, body)
 	}
 
-	return body, err
+	return body, nil
+}
+
+func (c *Client) allCollections() (*map[string]Collection, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/collections/listCollections/extended", c.BaseURL), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.makeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	result := map[string]Collection{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, err
+}
+
+func (c *Client) createCollection(collection CreateCollection) (*Collection, error) {
+	payload, err := json.Marshal(collection)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("payload: %s", payload)
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/collections/createCollection?token=%s", c.BaseURL, c.Token), bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.makeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	result := Collection{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, err
+}
+
+func (c *Client) getCollection(collectionID string) (*Collection, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/collections/collection/%s", c.BaseURL, collectionID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.makeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	result := Collection{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, err
 }

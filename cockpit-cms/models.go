@@ -36,11 +36,16 @@ type Sort struct {
 }
 
 type RuleSet struct {
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 }
 type Rule struct {
 	Create RuleSet `json:"create,omitempty"`
 	Read   RuleSet `json:"read,omitempty"`
 	Update RuleSet `json:"update,omitempty"`
 	Delete RuleSet `json:"delete,omitempty"`
+}
+
+type CreateCollection struct {
+	Name string     `json:"name,omitempty"`
+	Data Collection `json:"data,omitempty"`
 }

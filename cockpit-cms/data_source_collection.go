@@ -2,12 +2,10 @@ package cockpit_cms
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strconv"
-	"time"
 )
 
 func dataSourceCollections() *schema.Resource {
@@ -138,62 +136,7 @@ func dataSourceCollections() *schema.Resource {
 								},
 							},
 						},
-						"fields": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"type": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"width": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"group": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"default": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"label": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"info": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"localize": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-									"lst": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-									"options": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Required: false,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"acl": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Required: false,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
+						"fields": fields(),
 					},
 				},
 			},
@@ -244,16 +187,7 @@ func dataSourceCollectionsRead(ctx context.Context, d *schema.ResourceData, m in
 		})
 	}
 
-	collections := make(map[string]Collection, 0)
-	if err := json.Unmarshal(result, &collections); err != nil {
-		return append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Failed to unmarshal collections result.",
-			Detail:   fmt.Sprintf("Unable to unmarshal with error: %s", err.Error()),
-		})
-	}
-
-	if err := d.Set("collections", flattenCollections(&collections)); err != nil {
+	if err := d.Set("collections", flattenCollections(result)); err != nil {
 		return append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Failed to set flatten collections.",
@@ -261,7 +195,7 @@ func dataSourceCollectionsRead(ctx context.Context, d *schema.ResourceData, m in
 		})
 	}
 
-	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+	d.SetId(strconv.FormatInt(int64(len(*result)), 10))
 
 	return diags
 }
