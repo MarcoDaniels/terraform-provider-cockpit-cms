@@ -20,6 +20,7 @@ let
   '';
 
   runTerraform = pkgs.writeScriptBin "runTerraform" ''
+    ${buildPlugin}/bin/buildPlugin
     cd examples
     rm .terraform.lock.hcl
     ${pkgs.terraform_1}/bin/terraform init

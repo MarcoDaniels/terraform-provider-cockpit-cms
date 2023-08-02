@@ -106,10 +106,13 @@ func (c *Client) getCollection(collectionID string) (*Collection, error) {
 		return nil, err
 	}
 
+
 	result := Collection{}
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("result: %s", body)
 
 	return &result, err
 }

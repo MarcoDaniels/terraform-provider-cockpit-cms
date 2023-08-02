@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"time"
 )
 
 func resourceCollection() *schema.Resource {
@@ -19,8 +20,32 @@ func resourceCollection() *schema.Resource {
 				Required: true,
 			},
 			"data": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fields": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"label": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					}},
 			},
 		},
 	}
@@ -32,34 +57,35 @@ func resourceCollectionCreate(ctx context.Context, d *schema.ResourceData, m int
 	var diags diag.Diagnostics
 
 	name := d.Get("name").(string)
-	data := d.Get("data").(string)
+	data := d.Get("data").([]interface{})[0].(map[string]interface{})
 
-	fields := make([]Field, 0, 1)
+	fields := make([]Field, 0, len(data["fields"].([]interface{})))
 
-	field := Field{
-		Name: data,
-		Type: data,
+	for _, f := range data["fields"].([]interface{}) {
+		field := f.(map[string]interface{})
+
+		fields = append(fields, Field{
+			Name:  field["name"].(string),
+			Type:  field["type"].(string),
+			Label: field["label"].(string),
+		})
 	}
 
-	fields = append(fields, field)
-
-	enabled := false
+	justNow := int(time.Now().Unix())
 
 	collection := Collection{
-		Fields: fields,
+		Id:       name,
+		Name:     name,
+		Fields:   fields,
+		Created:  justNow,
+		Modified: justNow,
 		Sort: Sort{
 			Column: "_created",
 			Dir:    -1,
 		},
-		Rules: Rule{
-			Create: RuleSet{Enabled: &enabled},
-			Read:   RuleSet{Enabled: &enabled},
-			Update: RuleSet{Enabled: &enabled},
-			Delete: RuleSet{Enabled: &enabled},
-		},
 	}
 
-	object, err := client.createCollection(CreateCollection{Name: name, Data: collection})
+	newCollection, err := client.createCollection(CreateCollection{Name: name, Data: collection})
 	if err != nil {
 		return append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -68,43 +94,32 @@ func resourceCollectionCreate(ctx context.Context, d *schema.ResourceData, m int
 		})
 	}
 
-	d.SetId(object.Id)
+	d.SetId(newCollection.Id)
 
 	resourceCollectionRead(ctx, d, m)
 
 	return diags
 }
 
-func flattenCollection(coll *Collection) interface{} {
+func flattenCollection(c *Collection) []interface{} {
+	data := make([]interface{}, 0, 1)
 	collection := make(map[string]interface{})
-	fields := make([]interface{}, 0, len(coll.Fields))
+	fields := make([]interface{}, 0, len(c.Fields))
 
-	for _, f := range coll.Fields {
+	for _, f := range c.Fields {
 		field := make(map[string]interface{})
 		field["name"] = f.Name
 		field["type"] = f.Type
+		field["label"] = f.Label
 
 		fields = append(fields, field)
 	}
 
-	collection["_id"] = coll.Id
-	collection["name"] = coll.Name
 	collection["fields"] = fields
-	collection["sort"] = coll.Sort
 
-	/*
-		rule := make(map[string]interface{})
-		rule["enabled"] = false
-		rules := make(map[string]interface{})
-		rules["create"] = rule
-		rules["read"] = rule
-		rules["update"] = rule
-		rules["delete"] = coll.Rules.Delete.Enabled
-	*/
+	data = append(data, collection)
 
-	collection["rules"] = coll.Rules
-
-	return collection
+	return data
 }
 
 func resourceCollectionRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -129,11 +144,11 @@ func resourceCollectionRead(ctx context.Context, d *schema.ResourceData, m inter
 		})
 	}
 
-	if err := d.Set("data", &collection.Id); err != nil {
+	if err := d.Set("data", flattenCollection(collection)); err != nil {
 		return append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Failed set data collection.",
-			Detail:   fmt.Sprintf("Unable to create collection with error: %s", err.Error()),
+			Detail:   fmt.Sprintf("Unable to set data collection with error: %s", err.Error()),
 		})
 	}
 

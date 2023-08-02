@@ -1,51 +1,51 @@
 package cockpit_cms
 
 type Collection struct {
-	Name       string        `json:"name,omitempty"`
-	Label      string        `json:"label,omitempty"`
-	Id         string        `json:"_id,omitempty"`
-	Fields     []Field       `json:"fields,omitempty"`
-	Sortable   bool          `json:"sortable,omitempty"`
-	InMenu     bool          `json:"in_menu,omitempty"`
-	Created    int           `json:"_created,omitempty"`
-	Modified   int           `json:"_modified,omitempty"`
-	Color      string        `json:"color,omitempty"`
-	Acl        []interface{} `json:"acl,omitempty"`
-	Sort       Sort          `json:"sort,omitempty"`
-	Rules      Rule          `json:"rules,omitempty"`
+	Name       string        `json:"name"`
+	Label      string        `json:"label"`
+	Id         string        `json:"_id"`
+	Fields     []Field       `json:"fields"`
+	Sortable   bool          `json:"sortable"`
+	InMenu     bool          `json:"in_menu"`
+	Created    int           `json:"_created"`
+	Modified   int           `json:"_modified"`
+	Color      string        `json:"color"`
+	Acl        []interface{} `json:"acl"`
+	Sort       Sort          `json:"sort"`
+	Rules      Rule          `json:"rules"`
 	ItemsCount int           `json:"itemsCount,omitempty"`
 }
 
 type Field struct {
-	Name     string        `json:"name,omitempty"`
-	Label    string        `json:"label,omitempty"`
-	Type     string        `json:"type,omitempty"`
-	Default  string        `json:"default,omitempty"`
-	Info     string        `json:"info,omitempty"`
-	Group    string        `json:"group,omitempty"`
-	Localize bool          `json:"localize,omitempty"`
-	Options  []interface{} `json:"options,omitempty"`
-	Width    string        `json:"width,omitempty"`
-	Lst      bool          `json:"lst,omitempty"`
-	Acl      []interface{} `json:"acl,omitempty"`
+	Name     string        `json:"name"`
+	Label    string        `json:"label"`
+	Type     string        `json:"type"`
+	Default  string        `json:"default"`
+	Info     string        `json:"info"`
+	Group    string        `json:"group"`
+	Localize bool          `json:"localize"`
+	Options  []interface{} `json:"options"`
+	Width    string        `json:"width"`
+	Lst      bool          `json:"lst"`
+	Acl      []interface{} `json:"acl"`
 }
 
 type Sort struct {
-	Column string `json:"column,omitempty"`
-	Dir    int    `json:"dir,omitempty"`
+	Column string `json:"column"`
+	Dir    int    `json:"dir"`
 }
 
 type RuleSet struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled bool `json:"enabled"`
 }
 type Rule struct {
-	Create RuleSet `json:"create,omitempty"`
-	Read   RuleSet `json:"read,omitempty"`
-	Update RuleSet `json:"update,omitempty"`
-	Delete RuleSet `json:"delete,omitempty"`
+	Create RuleSet `json:"create"`
+	Read   RuleSet `json:"read"`
+	Update RuleSet `json:"update"`
+	Delete RuleSet `json:"delete"`
 }
 
 type CreateCollection struct {
-	Name string     `json:"name,omitempty"`
-	Data Collection `json:"data,omitempty"`
+	Name string     `json:"name"`
+	Data Collection `json:"data"`
 }
