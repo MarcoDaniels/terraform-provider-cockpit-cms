@@ -19,12 +19,21 @@ let
     mv ${name} ~/.terraform.d/plugins/${plugin}
   '';
 
-  runTerraform = pkgs.writeScriptBin "runTerraform" ''
+  terraformApply = pkgs.writeScriptBin "terraformApply" ''
     ${buildPlugin}/bin/buildPlugin
     cd examples
     rm .terraform.lock.hcl
     ${pkgs.terraform_1}/bin/terraform init
     TF_LOG=debug ${pkgs.terraform_1}/bin/terraform apply --auto-approve
+  '';
+
+  terraformImport = pkgs.writeScriptBin "terraformImport" ''
+    ${buildPlugin}/bin/buildPlugin
+    cd examples
+    rm .terraform.lock.hcl
+    ${pkgs.terraform_1}/bin/terraform init
+    TF_LOG=debug ${pkgs.terraform_1}/bin/terraform import cockpit-cms_collection.collection from-terraform
+    TF_LOG=debug ${pkgs.terraform_1}/bin/terraform state show cockpit-cms_collection.collection
   '';
 
 in pkgs.mkShell {
@@ -35,7 +44,8 @@ in pkgs.mkShell {
 
     build
     buildPlugin
-    runTerraform
+    terraformApply
+    terraformImport
   ];
 
   shellHook = ''

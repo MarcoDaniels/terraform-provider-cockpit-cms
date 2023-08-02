@@ -48,6 +48,9 @@ func resourceCollection() *schema.Resource {
 					}},
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 

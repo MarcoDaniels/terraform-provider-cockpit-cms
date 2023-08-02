@@ -13,6 +13,9 @@ provider "cockpit-cms" {
 
 data "cockpit-cms_collections" "all" {}
 
+resource "cockpit-cms_collection" "collection" {}
+
+/*
 resource "cockpit-cms_collection" "collection" {
   name = "from-terraform"
   data {
@@ -28,11 +31,14 @@ resource "cockpit-cms_collection" "collection" {
     }
   }
 }
+*/
 
-/*
+
 output "create_collection" {
   value = cockpit-cms_collection.collection
 }
+
+/*
 output "all_collections" {
   value = data.cockpit-cms_collections.all
 }

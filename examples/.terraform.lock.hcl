@@ -5,6 +5,6 @@ provider "marcodaniels.com/tf/cockpit-cms" {
   version     = "0.1.0"
   constraints = "0.1.0"
   hashes = [
-    "h1:WYw9KmMW/V1nEfVehWzP5vywMAgp1JzIDMQyykaoxzQ=",
+    "h1:njhNDQuRAa0ynrgPJnODvJvWM1/Tyy7a+ie/pc5iRDw=",
   ]
 }
