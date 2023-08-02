@@ -7,8 +7,8 @@ type Collection struct {
 	Fields     []Field       `json:"fields"`
 	Sortable   bool          `json:"sortable"`
 	InMenu     bool          `json:"in_menu"`
-	Created    int           `json:"_created"`
-	Modified   int           `json:"_modified"`
+	Created    int           `json:"_created,omitempty"`
+	Modified   int           `json:"_modified,omitempty"`
 	Color      string        `json:"color"`
 	Acl        []interface{} `json:"acl"`
 	Sort       Sort          `json:"sort"`
@@ -47,5 +47,9 @@ type Rule struct {
 
 type CreateCollection struct {
 	Name string     `json:"name"`
+	Data Collection `json:"data"`
+}
+
+type UpdateCollection struct {
 	Data Collection `json:"data"`
 }

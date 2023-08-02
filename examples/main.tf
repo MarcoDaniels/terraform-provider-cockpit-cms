@@ -19,11 +19,12 @@ resource "cockpit-cms_collection" "collection" {
     fields {
       name  = "test-from-terraform"
       type  = "text"
-      label = "wgat"
+      label = "no-label"
     }
     fields {
       name = "test-from-terraform-1"
       type = "number"
+      label = "this is number"
     }
   }
 }

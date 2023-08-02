@@ -75,7 +75,7 @@ func (c *Client) createCollection(collection CreateCollection) (*Collection, err
 		return nil, err
 	}
 
-	fmt.Printf("payload: %s", payload)
+	fmt.Printf("create payload: %s", payload)
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/collections/createCollection?token=%s", c.BaseURL, c.Token), bytes.NewBuffer(payload))
 	if err != nil {
@@ -106,13 +106,38 @@ func (c *Client) getCollection(collectionID string) (*Collection, error) {
 		return nil, err
 	}
 
-
 	result := Collection{}
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, err
 	}
 
 	fmt.Printf("result: %s", body)
+
+	return &result, err
+}
+
+func (c *Client) updateCollection(collectionID string, collection UpdateCollection) (*Collection, error) {
+	payload, err := json.Marshal(collection)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("update payload: %s", payload)
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/collections/updateCollection/%s", c.BaseURL, collectionID), bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.makeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	result := Collection{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
 
 	return &result, err
 }

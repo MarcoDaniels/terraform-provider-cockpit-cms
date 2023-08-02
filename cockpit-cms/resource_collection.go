@@ -156,6 +156,50 @@ func resourceCollectionRead(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceCollectionUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*Client)
+
+	var diags diag.Diagnostics
+
+	name := d.Id()
+
+	if d.HasChange("data") {
+		data := d.Get("data").([]interface{})[0].(map[string]interface{})
+
+		fields := make([]Field, 0, len(data["fields"].([]interface{})))
+
+		for _, f := range data["fields"].([]interface{}) {
+			field := f.(map[string]interface{})
+
+			fields = append(fields, Field{
+				Name:  field["name"].(string),
+				Type:  field["type"].(string),
+				Label: field["label"].(string),
+			})
+		}
+
+		justNow := int(time.Now().Unix())
+
+		collection := Collection{
+			Id:       name,
+			Name:     name,
+			Fields:   fields,
+			Modified: justNow,
+			Sort: Sort{
+				Column: "_created",
+				Dir:    -1,
+			},
+		}
+
+		_, err := client.updateCollection(name, UpdateCollection{Data: collection})
+		if err != nil {
+			return append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Failed to update collection.",
+				Detail:   fmt.Sprintf("Unable to update collection with error: %s", err.Error()),
+			})
+		}
+	}
+
 	return resourceCollectionRead(ctx, d, m)
 }
 
