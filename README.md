@@ -1,1 +1,1 @@
-# Cockpit CMS Terraform
+# Terraform Provider Cockpit CMS

@@ -5,30 +5,26 @@ let
     sha256 = "0929i9d331zgv86imvsdzyfsrnr7zwhb7sdh8sw5zzsp7qsxycja";
   }) { };
 
-  name = "terraform-provider-cockpit-cms";
-
-  plugin = "marcodaniels.com/tf/cockpit-cms/0.0.1/darwin_arm64";
-
-  build = pkgs.writeScriptBin "build" ''
-    ${pkgs.go_1_18}/bin/go build -o ${name}
+  installPlugin = pkgs.writeScriptBin "installPlugin" ''
+    ${pkgs.go_1_18}/bin/go install .
   '';
 
-  buildPlugin = pkgs.writeScriptBin "buildPlugin" ''
-    ${build}/bin/build
-    mkdir -p ~/.terraform.d/plugins/${plugin}
-    mv ${name} ~/.terraform.d/plugins/${plugin}
+  terraformPlan = pkgs.writeScriptBin "terraformPlan" ''
+    ${installPlugin}/bin/installPlugin
+    cd examples
+    rm .terraform.lock.hcl
+    ${pkgs.terraform_1}/bin/terraform plan
   '';
 
   terraformApply = pkgs.writeScriptBin "terraformApply" ''
-    ${buildPlugin}/bin/buildPlugin
+    ${installPlugin}/bin/installPlugin
     cd examples
     rm .terraform.lock.hcl
-    ${pkgs.terraform_1}/bin/terraform init
     TF_LOG=debug ${pkgs.terraform_1}/bin/terraform apply --auto-approve
   '';
 
   terraformImport = pkgs.writeScriptBin "terraformImport" ''
-    ${buildPlugin}/bin/buildPlugin
+    ${installPlugin}/bin/installPlugin
     cd examples
     rm .terraform.lock.hcl
     ${pkgs.terraform_1}/bin/terraform init
@@ -40,10 +36,10 @@ in pkgs.mkShell {
   buildInputs = [
     pkgs.nixfmt
     pkgs.terraform_1
-    pkgs.go_1_18
+    pkgs.go_1_19
 
-    build
-    buildPlugin
+    installPlugin
+    terraformPlan
     terraformApply
     terraformImport
   ];
@@ -52,6 +48,7 @@ in pkgs.mkShell {
       export GOPATH="$(pwd)/go"
       export GOCACHE=""
       export GO111MODULE='on'
+      export TF_CLI_CONFIG_FILE="$(pwd)/examples/.terraformrc"
   '';
 
   # intellij

@@ -1,12 +1,16 @@
 terraform {
   required_providers {
-    cockpit-cms = {
-      version = "0.0.1"
-      source  = "marcodaniels.com/tf/cockpit-cms"
+    cockpit = {
+      source  = "marcodaniels.com/tf/cockpit"
     }
   }
 }
 
+provider "cockpit" {}
+
+data "cockpit_collections" "all" {}
+
+/*
 provider "cockpit-cms" {
   base_url = "http://localhost:8080/api"
 }
