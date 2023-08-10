@@ -1,12 +1,14 @@
 terraform {
   required_providers {
     cockpit = {
-      source  = "marcodaniels.com/tf/cockpit"
+      source = "marcodaniels.com/tf/cockpit"
     }
   }
 }
 
-provider "cockpit" {}
+provider "cockpit" {
+  api_endpoint = "http://localhost:8080/api"
+}
 
 data "cockpit_collections" "all" {}
 
