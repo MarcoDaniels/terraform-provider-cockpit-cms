@@ -26,6 +26,7 @@ func Provider() *schema.Provider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"cockpit-cms_collections": dataSourceCollections(),
+			"cockpit-cms_field": dataSourceField(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			baseUrl := d.Get("base_url").(string)

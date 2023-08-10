@@ -7,7 +7,7 @@ let
 
   name = "terraform-provider-cockpit-cms";
 
-  plugin = "marcodaniels.com/tf/cockpit-cms/0.1/darwin_arm64";
+  plugin = "marcodaniels.com/tf/cockpit-cms/0.0.1/darwin_arm64";
 
   build = pkgs.writeScriptBin "build" ''
     ${pkgs.go_1_18}/bin/go build -o ${name}

@@ -2,9 +2,9 @@
 # Manual edits may be lost in future updates.
 
 provider "marcodaniels.com/tf/cockpit-cms" {
-  version     = "0.1.0"
-  constraints = "0.1.0"
+  version     = "0.0.1"
+  constraints = "0.0.1"
   hashes = [
-    "h1:njhNDQuRAa0ynrgPJnODvJvWM1/Tyy7a+ie/pc5iRDw=",
+    "h1:XElXG3mVEbILInAmtjHCkmd37Qr+J2rLTCqoG7KlqvU=",
   ]
 }
