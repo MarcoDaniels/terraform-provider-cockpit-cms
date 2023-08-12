@@ -12,6 +12,10 @@ provider "cockpit" {
 
 data "cockpit_collections" "all" {}
 
+output "all_collections" {
+  value = data.cockpit_collections.all
+}
+
 /*
 provider "cockpit-cms" {
   base_url = "http://localhost:8080/api"

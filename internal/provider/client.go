@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -13,15 +14,15 @@ type Client struct {
 	Token      string
 }
 
-func cockpitClient(endpoint, token string) (*Client, error) {
-	if (endpoint == "") || (token == "") {
+func cockpitClient(endpoint, token *string) (*Client, error) {
+	if (*endpoint == "") || (*token == "") {
 		return nil, fmt.Errorf("empty endpoint or token")
 	}
 
 	client := Client{
 		HTTPClient: &http.Client{Timeout: 10 * time.Second},
-		Token:      token,
-		Endpoint:   endpoint,
+		Token:      *token,
+		Endpoint:   *endpoint,
 	}
 
 	return &client, nil
@@ -46,4 +47,23 @@ func (c *Client) makeRequest(req *http.Request) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func (c *Client) allCollections() (*map[string]Collection, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/collections/listCollections/extended", c.Endpoint), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.makeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	result := map[string]Collection{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, err
 }
