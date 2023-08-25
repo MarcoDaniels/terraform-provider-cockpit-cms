@@ -16,13 +16,23 @@ output "all_collections" {
   value = data.cockpit_collections.all
 }
 
-/*
-provider "cockpit-cms" {
-  base_url = "http://localhost:8080/api"
+resource "cockpit_collection" "coll" {
+  name   = "my-collection-1"
+  label  = "From Terraform"
+  fields = [
+    {
+      name  = "title",
+      label = "Title",
+      type  = "Text"
+    }
+  ]
 }
 
-# data "cockpit-cms_collections" "all" {}
+output "collection" {
+  value = cockpit_collection.coll
+}
 
+/*
 data "cockpit-cms_field" "names" {
   name  = "test-from-terraform"
   type  = "text"
@@ -49,9 +59,4 @@ resource "cockpit-cms_collection" "collection" {
   }
 }
 
-
-/*
-output "all_collections" {
-  value = data.cockpit-cms_collections.all
-}
 */

@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -33,12 +34,12 @@ type cockpitProviderModel struct {
 	APIToken    types.String `tfsdk:"api_token"`
 }
 
-func (c cockpitProvider) Metadata(ctx context.Context, request provider.MetadataRequest, response *provider.MetadataResponse) {
+func (c *cockpitProvider) Metadata(ctx context.Context, request provider.MetadataRequest, response *provider.MetadataResponse) {
 	response.TypeName = "cockpit"
 	response.Version = c.version
 }
 
-func (c cockpitProvider) Schema(_ context.Context, _ provider.SchemaRequest, response *provider.SchemaResponse) {
+func (c *cockpitProvider) Schema(_ context.Context, _ provider.SchemaRequest, response *provider.SchemaResponse) {
 	response.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"api_endpoint": schema.StringAttribute{
@@ -52,7 +53,9 @@ func (c cockpitProvider) Schema(_ context.Context, _ provider.SchemaRequest, res
 	}
 }
 
-func (c cockpitProvider) Configure(ctx context.Context, request provider.ConfigureRequest, response *provider.ConfigureResponse) {
+func (c *cockpitProvider) Configure(ctx context.Context, request provider.ConfigureRequest, response *provider.ConfigureResponse) {
+	tflog.Info(ctx, "Configuring Cockpit CMS client")
+
 	var config cockpitProviderModel
 	diags := request.Config.Get(ctx, &config)
 	response.Diagnostics.Append(diags...)
@@ -105,12 +108,14 @@ func (c cockpitProvider) Configure(ctx context.Context, request provider.Configu
 	response.ResourceData = client
 }
 
-func (c cockpitProvider) DataSources(_ context.Context) []func() datasource.DataSource {
+func (c *cockpitProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewCollectionsDataSource,
 	}
 }
 
-func (c cockpitProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+func (c *cockpitProvider) Resources(_ context.Context) []func() resource.Resource {
+	return []func() resource.Resource{
+		NewCollectionResource,
+	}
 }
