@@ -10,12 +10,6 @@ provider "cockpit" {
   api_endpoint = "http://localhost:8080/api"
 }
 
-data "cockpit_collections" "all" {}
-
-output "all_collections" {
-  value = data.cockpit_collections.all
-}
-
 resource "cockpit_collection" "coll" {
   name   = "my-collection-1"
   label  = "From Terraform"
@@ -23,6 +17,16 @@ resource "cockpit_collection" "coll" {
     {
       name  = "title",
       label = "Title",
+      type  = "Text"
+    },
+    {
+      name  = "position",
+      label = "Position",
+      type  = "Number"
+    },
+    {
+      name  = "description",
+      label = "Description",
       type  = "Text"
     }
   ]
@@ -32,31 +36,16 @@ output "collection" {
   value = cockpit_collection.coll
 }
 
+data "cockpit_collections" "all" {}
+
+output "all_collections" {
+  value = data.cockpit_collections.all
+}
+
 /*
 data "cockpit-cms_field" "names" {
   name  = "test-from-terraform"
   type  = "text"
   label = "no-label"
 }
-
-output "field" {
-  value = data.cockpit-cms_field.names
-}
-
-resource "cockpit-cms_collection" "collection" {
-  name = "from-terraform"
-  data {
-    fields {
-      name  = data.cockpit-cms_field.names.name
-      type  = data.cockpit-cms_field.names.type
-      label = data.cockpit-cms_field.names.label
-    }
-    fields {
-      name  = "test-from-terraform-1"
-      type  = "number"
-      label = "this is number"
-    }
-  }
-}
-
 */

@@ -27,3 +27,7 @@ type CreateCollection struct {
 	Name string     `json:"name"`
 	Data Collection `json:"data"`
 }
+
+type UpdateCollection struct {
+	Data Collection `json:"data"`
+}

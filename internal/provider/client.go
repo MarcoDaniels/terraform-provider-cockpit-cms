@@ -111,3 +111,27 @@ func (c *Client) getCollection(collectionID string) (*Collection, error) {
 
 	return &result, err
 }
+
+func (c *Client) updateCollection(collectionID string, collection UpdateCollection) (*Collection, error) {
+	payload, err := json.Marshal(collection)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/collections/updateCollection/%s", c.Endpoint, collectionID), bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.makeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	result := Collection{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, err
+}

@@ -109,7 +109,7 @@ func (c *collectionResource) Create(ctx context.Context, request resource.Create
 		Fields: fields,
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("Created new collection %d", collection))
+	// tflog.Info(ctx, fmt.Sprintf("Created new collection %v", collection))
 
 	newCollection, err := c.client.createCollection(CreateCollection{Name: name, Data: collection})
 	if err != nil {
@@ -165,7 +165,67 @@ func (c *collectionResource) Read(ctx context.Context, request resource.ReadRequ
 }
 
 func (c *collectionResource) Update(ctx context.Context, request resource.UpdateRequest, response *resource.UpdateResponse) {
+	var plan collectionResourceModel
+	diags := request.Plan.Get(ctx, &plan)
+	response.Diagnostics.Append(diags...)
+	if response.Diagnostics.HasError() {
+		return
+	}
+
+	var fields []Field
+	for _, field := range plan.Fields {
+		fields = append(fields, Field{
+			Name:  field.Name.ValueString(),
+			Label: field.Label.ValueString(),
+			Type:  field.Type.ValueString(),
+		})
+	}
+
+	justNow := int(time.Now().Unix())
+	name := plan.Name.ValueString()
+
+	collection := Collection{
+		Id:       name,
+		Name:     plan.Name.ValueString(),
+		Label:    plan.Label.ValueString(),
+		Modified: justNow,
+		Fields:   fields,
+	}
+
+	// tflog.Info(ctx, fmt.Sprintf("Updating collection %v", collection))
+
+	updated, err := c.client.updateCollection(plan.Name.ValueString(), UpdateCollection{Data: collection})
+	if err != nil {
+		response.Diagnostics.AddError(
+			"Error updating collection",
+			"Could not update collection, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	plan.Name = types.StringValue(updated.Name)
+
+	diags = response.State.Set(ctx, plan)
+	response.Diagnostics.Append(diags...)
+	if response.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (c *collectionResource) Delete(ctx context.Context, request resource.DeleteRequest, response *resource.DeleteResponse) {
+	tflog.Info(ctx, "Deletion of collection is not available with Cockpit CMS API")
+
+	var state collectionResourceModel
+	diags := request.State.Get(ctx, &state)
+	response.Diagnostics.Append(diags...)
+	if response.Diagnostics.HasError() {
+		return
+	}
+
+	response.Diagnostics.AddError(
+		"Error Deleting Cockpit CMS Collection",
+		"Deletion of collection is not available with Cockpit CMS API",
+	)
+
+	return
 }
